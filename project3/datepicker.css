@@ -1,0 +1,47 @@
+table {
+    text-align: center;
+    /* width: 25vw; */
+    background-color: rgb(244, 240, 240);
+}
+
+.change {
+    background-color: rgb(27, 130, 167);
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 2.4vh;
+}
+
+.info {
+    font-family: 'Times New Roman';
+    font-size: 2.4vh;
+}
+
+tr:first-child td {
+    height: 5vh;
+}
+
+tr td {
+    height: 4.3vh;
+    width: 3.7vw;
+}
+
+.week:nth-child(odd) td {
+    background-color: rgb(173, 203, 229);
+}
+
+.week:nth-child(even) td {
+    background-color: rgb(240, 235, 209);
+}
+
+.normal {
+    cursor: pointer;
+    font-weight: bolder;
+}
+
+.normal:hover {
+    color: rgb(218, 164, 28);
+}
+
+.dim {
+    font-weight: lighter;
+}

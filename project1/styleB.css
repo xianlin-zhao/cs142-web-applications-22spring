@@ -1,0 +1,28 @@
+.container {
+    white-space: nowrap;
+}
+
+.container div {
+    display: inline-block;
+    width: 100px;
+    height: 150px;
+    font-size: 40px;
+    font-family: Tahoma;
+    background-color: #eeeff2;
+    padding-left: 10px;
+    padding-top: 10px;
+    border-left: 10px #d0d0ff dotted;
+    margin-right: 10px;
+}
+
+.container div:hover {
+    cursor: pointer;
+    background-color: yellow;
+    color: goldenrod;
+}
+
+.unique {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
