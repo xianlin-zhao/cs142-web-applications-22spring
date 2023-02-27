@@ -23,11 +23,13 @@ class Example extends React.Component {
     // We read the example model data into the state variable 'name'
     this.state = {
       name: window.cs142models.exampleModel().name,
+      motto: window.cs142models.exampleModel().motto,
       counter: 0,
       inputValue: '',
       buttonWasClicked: '',
     };
 
+    this.handleChangeMotto = event => this.handleMottoChange(event);
     // React events are called directly from DOM event handlers
     // so we cannot directly call the methods of this class. We
     // generate new functions that handle the event by just calling
@@ -62,6 +64,10 @@ class Example extends React.Component {
     // We need to tell the DOM to stop calling us otherwise React
     // will complain when we call setState on an unmounted component.
     clearInterval(this.timerID);
+  }
+
+  handleMottoChange(event) {
+    this.setState({motto: event.target.value});
   }
 
   // Method called when the input box is typed into.
@@ -103,6 +109,10 @@ class Example extends React.Component {
         <h1>CS142 Project#4 React.js Example</h1>
 
         <div className="motto-update">
+          <p> {this.state.name} </p>
+          <p> motto: &quot; {this.state.motto} &quot; </p>
+          <p> you can change the motto here: </p>
+          <input id="inMotto" type="text" value={this.state.motto} onChange={this.handleChangeMotto} />
           {/* Your problem #1 motto displaying and updating widget goes here */}
         </div>
 

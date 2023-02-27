@@ -4,3 +4,18 @@ CSS for the CS142 project #4 Problem #2 states component
 Since CSS uses a global name space for classes we should use names starting with
 cs142-states- here.
 */
+.cs142-states-queryInput {
+    font-size: 16px;
+    padding: 10px;
+    background-color: rgb(247, 239, 228);
+    border: 2px solid rgb(219, 183, 169);
+    display: inline-block;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.cs142-states-answerOutput li{
+    font-family: Tahoma;
+    font-weight: lighter;
+    list-style-type: square;
+}
