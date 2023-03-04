@@ -1,0 +1,6 @@
+.cs142-header-headRectangle {
+    width: 100%;
+    height: 30px;
+    background: linear-gradient(rgb(207, 222, 244), rgb(190, 225, 190));
+    margin-bottom: 15px;
+}

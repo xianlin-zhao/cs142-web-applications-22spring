@@ -7,6 +7,7 @@ cs142-states- here.
 .cs142-states-queryInput {
     font-size: 16px;
     padding: 10px;
+    margin-top: 10px;
     background-color: rgb(247, 239, 228);
     border: 2px solid rgb(219, 183, 169);
     display: inline-block;
