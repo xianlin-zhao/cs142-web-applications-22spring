@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import { HashRouter, Route, Link } from "react-router-dom";
 import './userDetail.css';
-
+import fetchModel from '../../lib/fetchModelData';
 
 /**
  * Define UserDetail, a React componment of CS142 project #5
@@ -16,22 +16,49 @@ class UserDetail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: window.cs142models.userModel(this.props.match.params.userId),
+      user: "",
     };
-    this.props.callback("userDetail", this.state.user.first_name + " " + this.state.user.last_name);
+
+    const promise = fetchModel(`http://localhost:3000/user/${this.props.match.params.userId}`);
+    promise.then(
+      (response) => {
+        this.setState({user: JSON.parse(response.data)});
+        this.props.callback("userDetail", this.state.user.first_name + " " + this.state.user.last_name);
+      },
+      (response) => {
+        console.log(response);
+      }
+    );
   }
 
   componentDidUpdate(otherProps) {
     if (otherProps.match.params.userId !== this.props.match.params.userId) {
-      const newUser = window.cs142models.userModel(this.props.match.params.userId);
-      this.setState({user: newUser});
-      this.props.callback("userDetail", newUser.first_name + " " + newUser.last_name);
+      const promise = fetchModel(`http://localhost:3000/user/${this.props.match.params.userId}`);
+      promise.then(
+        (response) => {
+          const newUser = JSON.parse(response.data);
+          this.setState({user: newUser});
+          this.props.callback("userDetail", newUser.first_name + " " + newUser.last_name);
+        },
+        (response) => {
+          console.log(response);
+        }
+      );
     }
   }
 
   componentDidMount() {
-    this.setState({user: window.cs142models.userModel(this.props.match.params.userId)});
-    this.props.callback("userDetail", this.state.user.first_name + " " + this.state.user.last_name);
+    const promise = fetchModel(`http://localhost:3000/user/${this.props.match.params.userId}`);
+    promise.then(
+      (response) => {
+        const newUser = JSON.parse(response.data);
+        this.setState({user: newUser});
+        this.props.callback("userDetail", newUser.first_name + " " + newUser.last_name);
+      },
+      (response) => {
+        console.log(response);
+      }
+    );
   }
 
   render() {
@@ -61,16 +88,6 @@ class UserDetail extends React.Component {
         </Typography>
       </div>
     );
-
-    // return (
-    //   <Typography variant="body1">
-    //     This should be the UserDetail view of the PhotoShare app. Since
-    //     it is invoked from React Router the params from the route will be
-    //     in property match. So this should show details of user:
-    //     {this.props.match.params.userId}. You can fetch the model for the
-    //     user from window.cs142models.userModel(userId).
-    //   </Typography>
-    // );
   }
 }
 

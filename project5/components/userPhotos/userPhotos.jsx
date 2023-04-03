@@ -4,7 +4,7 @@ import {
 } from '@material-ui/core';
 import { HashRouter, Route, Link } from "react-router-dom";
 import './userPhotos.css';
-
+import fetchModel from '../../lib/fetchModelData';
 
 /**
  * Define UserPhotos, a React componment of CS142 project #5
@@ -13,10 +13,30 @@ class UserPhotos extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      photos: window.cs142models.photoOfUserModel(this.props.match.params.userId),
-      user: window.cs142models.userModel(this.props.match.params.userId),
+      photos: "",
+      user: "",
     };
-    this.props.callback("userPhotos", this.state.user.first_name + " " + this.state.user.last_name);
+
+    const promise0 = fetchModel(`http://localhost:3000/photosOfUser/${this.props.match.params.userId}`);
+    promise0.then(
+      (response) => {
+        this.setState({photos: JSON.parse(response.data)});
+      },
+      (response) => {
+        console.log(response);
+      }
+    );
+
+    const promise1 = fetchModel(`http://localhost:3000/user/${this.props.match.params.userId}`);
+    promise1.then(
+      (response) => {
+        this.setState({user: JSON.parse(response.data)});
+        this.props.callback("userPhotos", this.state.user.first_name + " " + this.state.user.last_name);
+      },
+      (response) => {
+        console.log(response);
+      }
+    );
   }
 
   photoComments(nowComments) {
@@ -62,19 +82,6 @@ class UserPhotos extends React.Component {
         {allPhotos}
       </div>
     );
-    // return (
-    //   <Typography variant="body1">
-    //   This should be the UserPhotos view of the PhotoShare app. Since
-    //   it is invoked from React Router the params from the route will be
-    //   in property match. So this should show details of user:
-    //   {this.props.match.params.userId}. You can fetch the model for the user from
-    //   window.cs142models.photoOfUserModel(userId):
-    //     <Typography variant="caption">
-    //       {JSON.stringify(window.cs142models.photoOfUserModel(this.props.match.params.userId))}
-    //     </Typography>
-    //   </Typography>
-
-    // );
   }
 }
 
