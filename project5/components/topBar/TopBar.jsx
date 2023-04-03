@@ -13,12 +13,24 @@ class TopBar extends React.Component {
   }
 
   render() {
+    const currLoc = this.props.state.currLoc;
+    const userName = this.props.state.userName;
+    let rightText = "";
+    if (userName) {
+      if (currLoc === "userDetail") {
+        rightText = userName;
+      } else if (currLoc === "userPhotos") {
+        rightText = "Photos of " + userName;
+      }
+    }
+
     return (
       <AppBar className="cs142-topbar-appBar" position="absolute">
         <Toolbar>
-          <Typography variant="h5" color="inherit">
-              This is the TopBar component
+          <Typography variant="h5" color="inherit" style={{flexGrow: 1}}>
+              Xianlin Zhao
           </Typography>
+          <Typography variant='h5'>{rightText}</Typography>
         </Toolbar>
       </AppBar>
     );

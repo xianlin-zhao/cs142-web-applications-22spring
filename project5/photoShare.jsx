@@ -17,7 +17,18 @@ import UserPhotos from './components/userPhotos/userPhotos';
 class PhotoShare extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      currLoc: '',
+      userName: '',
+    };
   }
+
+  updateState = (loc, name) => {
+    this.setState({
+      currLoc: loc,
+      userName: name
+    });
+  };
 
   render() {
     return (
@@ -25,7 +36,7 @@ class PhotoShare extends React.Component {
       <div>
       <Grid container spacing={8}>
         <Grid item xs={12}>
-          <TopBar/>
+          <TopBar state={this.state}/>
         </Grid>
         <div className="cs142-main-topbar-buffer"/>
         <Grid item sm={3}>
@@ -49,10 +60,10 @@ class PhotoShare extends React.Component {
                 )}
               />
               <Route path="/users/:userId"
-                render={ props => <UserDetail {...props} /> }
+                render={ props => <UserDetail {...props} callback={this.updateState} /> }
               />
               <Route path="/photos/:userId"
-                render ={ props => <UserPhotos {...props} /> }
+                render ={ props => <UserPhotos {...props} callback={this.updateState} /> }
               />
               <Route path="/users" component={UserList}  />
             </Switch>
