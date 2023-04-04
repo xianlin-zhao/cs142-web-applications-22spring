@@ -5,7 +5,7 @@ import {
   ListItemText,
   Typography
 } from '@material-ui/core';
-import { HashRouter, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import './userDetail.css';
 import fetchModel from '../../lib/fetchModelData';
 

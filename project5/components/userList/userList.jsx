@@ -3,11 +3,9 @@ import {
   Divider,
   List,
   ListItem,
-  ListItemText,
-  Typography,
 }
   from '@material-ui/core';
-import { HashRouter, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import './userList.css';
 import fetchModel from '../../lib/fetchModelData';
 
@@ -37,12 +35,14 @@ class UserList extends React.Component {
     for (let i = 0; i < this.state.users.length; i++) {
       let nowUser = this.state.users[i];
       let nowName = nowUser.first_name + " " + nowUser.last_name;
-      allUsers.push(<div key={nowUser._id}>
-        <ListItem>
-          <Link to={"/users/" + nowUser._id}>{nowName}</Link>
-        </ListItem>
-        <Divider />
-      </div>)
+      allUsers.push(
+        <div key={nowUser._id}>
+          <ListItem>
+            <Link to={"/users/" + nowUser._id}>{nowName}</Link>
+          </ListItem>
+          <Divider />
+        </div>
+      );
     }
     return (
       <div className='listUsers'>

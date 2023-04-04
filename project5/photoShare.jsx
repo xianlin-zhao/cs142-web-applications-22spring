@@ -4,7 +4,7 @@ import {
   HashRouter, Route, Switch
 } from 'react-router-dom';
 import {
-  Grid, Typography, Paper
+  Grid, Paper
 } from '@material-ui/core';
 import './styles/main.css';
 
@@ -28,6 +28,7 @@ class PhotoShare extends React.Component {
       currLoc: loc,
       userName: name
     });
+    console.log(this.state);
   };
 
   render() {

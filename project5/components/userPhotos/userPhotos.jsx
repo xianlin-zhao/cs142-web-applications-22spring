@@ -1,10 +1,39 @@
 import React from 'react';
 import {
-  Typography
+  Grid, 
+  Card,
+  CardContent,
+  CardHeader,
+  CardMedia,
+  List,
+  Typography,
 } from '@material-ui/core';
-import { HashRouter, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import './userPhotos.css';
 import fetchModel from '../../lib/fetchModelData';
+
+function photoComments(nowComments) {
+  if (nowComments) {
+    return (
+      nowComments.map((perComment) => (
+        <List key={perComment._id}>
+          <Typography variant='subtitle2'>
+            <Link to={"/users/" + perComment.user._id}>
+              {perComment.user.first_name + " " + perComment.user.last_name + "  "}
+            </Link>
+          </Typography>
+          <Typography variant='caption' color='textSecondary' gutterBottom>
+            {perComment.date_time}
+          </Typography>
+          <Typography variant='body1'>
+            {perComment.comment}
+          </Typography>
+        </List>
+      ))
+    );
+  }
+  return "";
+}
 
 /**
  * Define UserPhotos, a React componment of CS142 project #5
@@ -39,24 +68,6 @@ class UserPhotos extends React.Component {
     );
   }
 
-  photoComments(nowComments) {
-    if (nowComments) {
-      return (
-        nowComments.map((perComment) => (
-          <Typography variant='body1' key={perComment._id}>
-            {perComment.comment}<br />
-            <Link to={"/users/" + perComment.user._id}>
-              {perComment.user.first_name + " " + perComment.user.last_name + "  "}
-            </Link>
-            <br />
-            {perComment.date_time}
-            <br /><br/>
-          </Typography>
-        ))
-      );
-    }
-  }
-
   render() {
     let allPhotos = [];
     for (let i = 0; i < this.state.photos.length; i++) {
@@ -65,22 +76,28 @@ class UserPhotos extends React.Component {
       let dateTime = nowPhoto.date_time;
       let nowComments = nowPhoto.comments;
       allPhotos.push(
-        <div key={nowPhoto._id}>
-          <img className='userImage' src={photoFile}/>
-          <br />
-          <Typography variant='caption'>
-            creation date: {dateTime}
-          </Typography>
-          <br /><br />
-          {this.photoComments(nowComments)}
-          <br /><br />
-        </div>
+        <Grid item xs={6} key={nowPhoto._id}>
+          <Card variant="outlined">
+            <CardHeader 
+              subheader={dateTime}
+            />
+            <CardMedia
+              component="img"
+              image={photoFile}
+              alt='Author Post'
+            />
+            <CardContent>
+              {photoComments(nowComments)}
+            </CardContent>
+          </Card>
+        </Grid>
       );
     }
+
     return (
-      <div>
+      <Grid justifyContent='center' container spacing={1}>
         {allPhotos}
-      </div>
+      </Grid>
     );
   }
 }
