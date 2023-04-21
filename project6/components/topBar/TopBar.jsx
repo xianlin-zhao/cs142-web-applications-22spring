@@ -3,7 +3,7 @@ import {
   AppBar, Toolbar, Typography
 } from '@material-ui/core';
 import './TopBar.css';
-import fetchModel from '../../lib/fetchModelData';
+import axios from 'axios';
 
 /**
  * Define TopBar, a React componment of CS142 project #5
@@ -14,11 +14,12 @@ class TopBar extends React.Component {
     this.state = {
       version: "",
     };
-    const promise = fetchModel("http://localhost:3000/test/info");
+    const promise = axios.get("/test/info");
     promise.then(
       (response) => {
         this.setState({version: JSON.parse(response.data)});
-      },
+      }
+    ).catch(
       (response) => {
         console.log(response);
       }

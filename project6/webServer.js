@@ -179,13 +179,13 @@ app.get('/photosOfUser/:id', function (request, response) {
         }
         console.log('Doing /photosOfUser/:id success');
         photos = JSON.parse(JSON.stringify(photos));
-        async.each(photos, function(photo, callback) {
+        async.each(photos, function(photo, callback0) {
             async.each(photo.comments, function(comment, callback) {
-                User.findOne({_id: comment.user_id}, 'first_name last_name', function(err, user) {
-                    if (err) {
-                        console.error('Doing /photosOfUser/:id error:', err);
-                        response.status(400).send(JSON.stringify(err));
-                        callback(err);
+                User.findOne({_id: comment.user_id}, 'first_name last_name', function(err0, user) {
+                    if (err0) {
+                        console.error('Doing /photosOfUser/:id error:', err0);
+                        response.status(400).send(JSON.stringify(err0));
+                        callback(err0);
                     } else if (!user || user.length <= 0) {
                         console.error('Doing /photosOfUser/:id not found:', id);
                         response.status(400).send('not found id: ' + comment.user_id);
@@ -196,18 +196,18 @@ app.get('/photosOfUser/:id', function (request, response) {
                         callback();
                     }
                 });
-            }, function(err) {
-                if (err) {
-                    console.error("async error:", err);
-                    response.status(500).send(JSON.stringify(err));
+            }, function(err1) {
+                if (err1) {
+                    console.error("async error:", err1);
+                    response.status(500).send(JSON.stringify(err1));
                 } else {
-                    callback();
+                    callback0();
                 }
-            })
-        }, function(err) {
-            if (err) {
-                console.error("async error:", err);
-                response.status(500).send(JSON.stringify(err));
+            });
+        }, function(err2) {
+            if (err2) {
+                console.error("async error:", err2);
+                response.status(500).send(JSON.stringify(err2));
             } else {
                 response.status(200).send(photos);
             }

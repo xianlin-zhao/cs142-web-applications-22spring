@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import { Link } from "react-router-dom";
 import './userDetail.css';
-import fetchModel from '../../lib/fetchModelData';
+import axios from 'axios';
 
 /**
  * Define UserDetail, a React componment of CS142 project #5
@@ -19,12 +19,13 @@ class UserDetail extends React.Component {
       user: "",
     };
 
-    const promise = fetchModel(`http://localhost:3000/user/${this.props.match.params.userId}`);
+    const promise = axios.get(`/user/${this.props.match.params.userId}`);
     promise.then(
       (response) => {
         this.setState({user: JSON.parse(response.data)});
         this.props.callback("userDetail", this.state.user.first_name + " " + this.state.user.last_name);
-      },
+      }
+    ).catch(
       (response) => {
         console.log(response);
       }
@@ -33,13 +34,14 @@ class UserDetail extends React.Component {
 
   componentDidUpdate(otherProps) {
     if (otherProps.match.params.userId !== this.props.match.params.userId) {
-      const promise = fetchModel(`http://localhost:3000/user/${this.props.match.params.userId}`);
+      const promise = axios.get(`/user/${this.props.match.params.userId}`);
       promise.then(
         (response) => {
           const newUser = JSON.parse(response.data);
           this.setState({user: newUser});
           this.props.callback("userDetail", newUser.first_name + " " + newUser.last_name);
-        },
+        }
+      ).catch(
         (response) => {
           console.log(response);
         }
@@ -48,13 +50,14 @@ class UserDetail extends React.Component {
   }
 
   componentDidMount() {
-    const promise = fetchModel(`http://localhost:3000/user/${this.props.match.params.userId}`);
+    const promise = axios.get(`/user/${this.props.match.params.userId}`);
     promise.then(
       (response) => {
         const newUser = JSON.parse(response.data);
         this.setState({user: newUser});
         this.props.callback("userDetail", newUser.first_name + " " + newUser.last_name);
-      },
+      }
+    ).catch(
       (response) => {
         console.log(response);
       }

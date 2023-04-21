@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core';
 import { Link } from "react-router-dom";
 import './userPhotos.css';
-import fetchModel from '../../lib/fetchModelData';
+import axios from 'axios';
 
 function photoComments(nowComments) {
   if (nowComments) {
@@ -46,22 +46,24 @@ class UserPhotos extends React.Component {
       user: "",
     };
 
-    const promise0 = fetchModel(`http://localhost:3000/photosOfUser/${this.props.match.params.userId}`);
+    const promise0 = axios.get(`/photosOfUser/${this.props.match.params.userId}`);
     promise0.then(
       (response) => {
         this.setState({photos: JSON.parse(response.data)});
-      },
+      }
+    ).catch(
       (response) => {
         console.log(response);
       }
     );
 
-    const promise1 = fetchModel(`http://localhost:3000/user/${this.props.match.params.userId}`);
+    const promise1 = axios.get(`/user/${this.props.match.params.userId}`);
     promise1.then(
       (response) => {
         this.setState({user: JSON.parse(response.data)});
         this.props.callback("userPhotos", this.state.user.first_name + " " + this.state.user.last_name);
-      },
+      }
+    ).catch(
       (response) => {
         console.log(response);
       }
