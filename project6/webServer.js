@@ -43,7 +43,7 @@ var Photo = require('./schema/photo.js');
 var SchemaInfo = require('./schema/schemaInfo.js');
 
 // XXX - Your submission should work without this line. Comment out or delete this line for tests and before submission!
-var cs142models = require('./modelData/photoApp.js').cs142models;
+// var cs142models = require('./modelData/photoApp.js').cs142models;
 
 mongoose.connect('mongodb://localhost/cs142project6', { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -128,7 +128,16 @@ app.get('/test/:p1', function (request, response) {
  * URL /user/list - Return all the User object.
  */
 app.get('/user/list', function (request, response) {
-    response.status(200).send(cs142models.userListModel());
+    var query = User.find({});
+    query.select("first_name last_name").exec(function(err, users) {
+        if (err) {
+            console.error('Doing /user/list error:', err);
+            response.status(500).send(JSON.stringify(err));
+            return;
+        }
+        console.log('Doing /user/list success');
+        response.status(200).send(users);
+    });
 });
 
 /*
@@ -136,13 +145,20 @@ app.get('/user/list', function (request, response) {
  */
 app.get('/user/:id', function (request, response) {
     var id = request.params.id;
-    var user = cs142models.userModel(id);
-    if (user === null) {
-        console.log('User with _id:' + id + ' not found.');
-        response.status(400).send('Not found');
-        return;
-    }
-    response.status(200).send(user);
+    User.findOne({_id: id}, '-__v', function(err, user) {
+        if (err) {
+            console.error('Doing /user/:id error:', err);
+            response.status(400).send(JSON.stringify(err));
+            return;
+        }
+        if (!user || user.length <= 0) {
+            console.error('Doing /user/:id not found:', id);
+            response.status(400).send('not found id: ' + id);
+            return;
+        }
+        console.log('Doing /user/:id success');
+        response.status(200).send(user);
+    });
 });
 
 /*
@@ -150,13 +166,53 @@ app.get('/user/:id', function (request, response) {
  */
 app.get('/photosOfUser/:id', function (request, response) {
     var id = request.params.id;
-    var photos = cs142models.photoOfUserModel(id);
-    if (photos.length === 0) {
-        console.log('Photos for user with _id:' + id + ' not found.');
-        response.status(400).send('Not found');
-        return;
-    }
-    response.status(200).send(photos);
+    Photo.find({user_id: id}, "-__v", function(err, photos) {
+        if (err) {
+            console.error('Doing /photosOfUser/:id error:', err);
+            response.status(400).send(JSON.stringify(err));
+            return;
+        }
+        if (!photos) {
+            console.error('Doing /photosOfUser/:id not found:', id);
+            response.status(400).send('not found id: ' + id);
+            return;
+        }
+        console.log('Doing /photosOfUser/:id success');
+        photos = JSON.parse(JSON.stringify(photos));
+        async.each(photos, function(photo, callback) {
+            async.each(photo.comments, function(comment, callback) {
+                User.findOne({_id: comment.user_id}, 'first_name last_name', function(err, user) {
+                    if (err) {
+                        console.error('Doing /photosOfUser/:id error:', err);
+                        response.status(400).send(JSON.stringify(err));
+                        callback(err);
+                    } else if (!user || user.length <= 0) {
+                        console.error('Doing /photosOfUser/:id not found:', id);
+                        response.status(400).send('not found id: ' + comment.user_id);
+                        callback('not found id: ' + comment.user_id);
+                    } else {
+                        comment.user = user;
+                        delete comment.user_id;
+                        callback();
+                    }
+                });
+            }, function(err) {
+                if (err) {
+                    console.error("async error:", err);
+                    response.status(500).send(JSON.stringify(err));
+                } else {
+                    callback();
+                }
+            })
+        }, function(err) {
+            if (err) {
+                console.error("async error:", err);
+                response.status(500).send(JSON.stringify(err));
+            } else {
+                response.status(200).send(photos);
+            }
+        });
+    });
 });
 
 
@@ -164,5 +220,3 @@ var server = app.listen(3000, function () {
     var port = server.address().port;
     console.log('Listening at http://localhost:' + port + ' exporting the directory ' + __dirname);
 });
-
-
