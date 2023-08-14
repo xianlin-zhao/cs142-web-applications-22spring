@@ -2,3 +2,45 @@
   height: 60;
   justify-content: 'center';
 }
+
+p {
+  font-weight: bold;
+}
+
+.bar_logout,.bar_upload {
+  font-weight: normal;
+  display: inline-block;
+  padding: 4px 20px;
+  background-color: #7f91da;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.bar_logout:hover {
+  background-color: rgb(83, 83, 156);
+}
+
+.bar_upload:hover {
+  background-color: rgb(83, 83, 156);
+}
+
+.myfile {
+  display: none;
+}
+
+.custom_file_input {
+  display: inline-block;
+  padding: 4px 20px;
+  background-color: #7f91da;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-right: 10px;
+}
+
+.custom_file_input:hover {
+  background-color: rgb(83, 83, 156);
+}

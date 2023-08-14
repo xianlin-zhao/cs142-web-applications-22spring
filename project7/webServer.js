@@ -40,6 +40,7 @@ var app = express();
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const fs = require("fs");
 
 // Load the Mongoose schema for User, Photo, and SchemaInfo
 var User = require('./schema/user.js');
@@ -135,6 +136,11 @@ app.get('/test/:p1', function (request, response) {
  * URL /user/list - Return all the User object.
  */
 app.get('/user/list', function (request, response) {
+    if (!(request.session.login_name)) {
+        response.status(401).send('not log in');
+        return;
+    }
+
     var query = User.find({});
     query.select("first_name last_name").exec(function(err, users) {
         if (err) {
@@ -151,8 +157,18 @@ app.get('/user/list', function (request, response) {
  * URL /user/:id - Return the information for User (id)
  */
 app.get('/user/:id', function (request, response) {
+    if (!(request.session.login_name)) {
+        response.status(401).send('not log in');
+        return;
+    }
+
     var id = request.params.id;
-    User.findOne({_id: id}, '-__v', function(err, user) {
+    if (!mongoose.isValidObjectId(id)) {
+        response.status(400).send('not valid');
+        return;
+    }
+
+    User.findOne({_id: id}, '-__v -login_name -password', function(err, user) {
         if (err) {
             console.error('Doing /user/:id error:', err);
             response.status(400).send(JSON.stringify(err));
@@ -172,7 +188,17 @@ app.get('/user/:id', function (request, response) {
  * URL /photosOfUser/:id - Return the Photos for User (id)
  */
 app.get('/photosOfUser/:id', function (request, response) {
+    if (!(request.session.login_name)) {
+        response.status(401).send('not log in');
+        return;
+    }
+    
     var id = request.params.id;
+    if (!mongoose.isValidObjectId(id)) {
+        response.status(400).send('not valid');
+        return;
+    }
+
     Photo.find({user_id: id}, "-__v", function(err, photos) {
         if (err) {
             console.error('Doing /photosOfUser/:id error:', err);
@@ -218,6 +244,163 @@ app.get('/photosOfUser/:id', function (request, response) {
             } else {
                 response.status(200).send(photos);
             }
+        });
+    });
+});
+
+app.post('/admin/login', function (request, response) {
+    var login_name = request.body.login_name;
+    User.findOne({login_name: login_name}, function(err, user) {
+        if (err) {
+            console.error('Doing /admin/login error:', err);
+            response.status(400).send(JSON.stringify(err));
+            return;
+        }
+        if (!user || user.length <= 0) {
+            console.error('Doing /admin/login not found:', login_name);
+            response.status(400).send('not found id: ' + login_name);
+            return;
+        }
+        if (user.password !== request.body.password) {
+            console.log('Doing /admin/login password error:', login_name);
+            response.status(400).send('password error: ' + login_name);
+            return;
+        }
+        console.log('Doing /admin/login success');
+        request.session.login_name = login_name;
+        request.session._id = user._id;
+        request.session.first_name = user.first_name;
+        response.status(200).send(request.session);
+    });
+});
+
+app.post('/admin/logout', function (request, response) {
+    if (!(request.session.login_name)) {
+        console.error('Doing /admin/logout error:');
+        response.status(400).send('user is not currently logged in');
+        return;
+    }
+    request.session.destroy(function(err) {
+        if (err) {
+            console.log('Doing /admin/logout destroy:', err);
+        }
+    });
+    response.status(200).send('logout success');
+});
+
+app.post('/user', function (request, response) {
+    if (request.body.login_name.length <= 0 || request.body.first_name.length <= 0 || 
+        request.body.last_name.length <= 0 || request.body.password.length <= 0) {
+        console.error('Doing /user properties not specified');
+        response.status(400).send('not specified');
+        return;
+    }
+    User.countDocuments({login_name: request.body.login_name}, function(err, cnt) {
+        if (err) {
+            console.error('Doing /user error:', err);
+            response.status(400).send(JSON.stringify(err));
+            return;
+        }
+        if (cnt > 0) {
+            console.error('Doing /user already exist:', cnt);
+            response.status(400).send('already exist: ' + request.body.login_name);
+            return;
+        }
+        User.create({
+            login_name: request.body.login_name,
+            password: request.body.password,
+            first_name: request.body.first_name,
+            last_name: request.body.last_name,
+            location: request.body.location,
+            description: request.body.description,
+            occupation: request.body.occupation,
+        }, (err0) => {console.error('Doing /user create error:', err0);});
+        response.status(200).send('register success');
+    });
+
+});
+
+app.post('/commentsOfPhoto/:photo_id', function (request, response) {
+    if (!(request.session.login_name)) {
+        response.status(401).send('not log in');
+        return;
+    }
+    if (request.body.comment.length <= 0) {
+        console.log('empty comment');
+        response.status(400).send('empty comment');
+        return;
+    }
+
+    let photo_id = request.params.photo_id;
+    Photo.findOne({_id: photo_id}, function(err, photo) {
+        if (err) {
+            console.log('Doing /commentsOfPhoto/:photo_id error:', err);
+            response.status(400).send(JSON.stringify(err));
+            return;
+        }
+        if (!photo || photo.length <= 0) {
+            console.log('Doing /commentsOfPhoto/:photo_id not found:', photo_id);
+            response.status(400).send('not found id: ' + photo_id);
+            return;
+        }
+        let new_comment = {
+            comment: request.body.comment,
+            user_id: request.session._id,
+            date_time: new Date().toISOString()
+        };
+        photo.comments.push(new_comment);
+        photo.save();
+        console.log('Doing /commentsOfPhoto/:photo_id success');
+        response.status(200).send('new comment success');
+    });
+});
+
+const processFormBody = multer({storage: multer.memoryStorage()}).single('uploadedphoto');
+
+app.post('/photos/new', function (request, response) {
+    if (!(request.session.login_name)) {
+        response.status(401).send('not log in');
+        return;
+    }
+
+    processFormBody(request, response, function (err) {
+        if (err || !request.file) {
+            console.log('Doing /photos/new error:', err);
+            return;
+        }
+        // request.file has the following properties of interest
+        //      fieldname      - Should be 'uploadedphoto' since that is what we sent
+        //      originalname:  - The name of the file the user uploaded
+        //      mimetype:      - The mimetype of the image (e.g. 'image/jpeg',  'image/png')
+        //      buffer:        - A node Buffer containing the contents of the file
+        //      size:          - The size of the file in bytes
+    
+        if (request.file.buffer.size === 0) {
+            response.status(400).send('Doint /photos/new no file');
+            return;
+        }
+
+        // We need to create the file in the directory "images" under an unique name. We make
+        // the original file name unique by adding a unique prefix with a timestamp.
+        const timestamp = new Date().valueOf();
+        const filename = 'U' +  String(timestamp) + request.file.originalname;
+    
+        fs.writeFile("./images/" + filename, request.file.buffer, function (err0) {
+          // XXX - Once you have the file written into your images directory under the name
+          // filename you can create the Photo object in the database
+            if (err0) {
+                console.log('Doint /photos/new writeFile error:', err0);
+                return;
+            }
+            let new_photo = new Photo({
+                file_name: filename,
+                date_time: timestamp,
+                user_id: request.session._id,
+                comments: undefined
+            });
+            new_photo.save();
+            console.log('Doing /photos/new success');
+            response.status(200).send('photo uploading success');
         });
     });
 });

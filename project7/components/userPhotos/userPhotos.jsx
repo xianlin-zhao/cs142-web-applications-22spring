@@ -11,6 +11,7 @@ import {
 import { Link } from "react-router-dom";
 import './userPhotos.css';
 import axios from 'axios';
+import CommentDialog from './commentDialog';
 
 function photoComments(nowComments) {
   if (nowComments) {
@@ -46,10 +47,14 @@ class UserPhotos extends React.Component {
       user: "",
     };
 
+    this.axiosGetPhotosUser();
+  }
+
+  axiosGetPhotosUser = () => {
     const promise0 = axios.get(`/photosOfUser/${this.props.match.params.userId}`);
     promise0.then(
       (response) => {
-        this.setState({photos: JSON.parse(response.data)});
+        this.setState({photos: response.data});
       }
     ).catch(
       (response) => {
@@ -60,7 +65,7 @@ class UserPhotos extends React.Component {
     const promise1 = axios.get(`/user/${this.props.match.params.userId}`);
     promise1.then(
       (response) => {
-        this.setState({user: JSON.parse(response.data)});
+        this.setState({user: response.data});
         this.props.callback("userPhotos", this.state.user.first_name + " " + this.state.user.last_name);
       }
     ).catch(
@@ -68,7 +73,19 @@ class UserPhotos extends React.Component {
         console.log(response);
       }
     );
+  };
+
+  componentDidUpdate(otherProps) {
+    if (otherProps.photoIsUploaded !== this.props.photoIsUploaded && this.props.photoIsUploaded) {
+      console.log('photo uploaded');
+      this.axiosGetPhotosUser();
+    }
   }
+
+  handleUpload = () => {
+    console.log('comment submit');
+    this.axiosGetPhotosUser();
+  };
 
   render() {
     let allPhotos = [];
@@ -90,6 +107,7 @@ class UserPhotos extends React.Component {
             />
             <CardContent>
               {photoComments(nowComments)}
+              <CommentDialog onCommentSubmit={this.handleUpload} photoId={nowPhoto._id} />
             </CardContent>
           </Card>
         </Grid>

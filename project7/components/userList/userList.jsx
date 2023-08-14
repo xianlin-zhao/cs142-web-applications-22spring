@@ -22,7 +22,7 @@ class UserList extends React.Component {
     const promise = axios.get("/user/list");
     promise.then(
       (response) => {
-        this.setState({users: JSON.parse(response.data)});
+        this.setState({users: response.data});
       }
     ).catch(
       (response) => {

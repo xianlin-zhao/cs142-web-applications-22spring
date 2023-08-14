@@ -22,7 +22,7 @@ class UserDetail extends React.Component {
     const promise = axios.get(`/user/${this.props.match.params.userId}`);
     promise.then(
       (response) => {
-        this.setState({user: JSON.parse(response.data)});
+        this.setState({user: response.data});
         this.props.callback("userDetail", this.state.user.first_name + " " + this.state.user.last_name);
       }
     ).catch(
@@ -37,7 +37,7 @@ class UserDetail extends React.Component {
       const promise = axios.get(`/user/${this.props.match.params.userId}`);
       promise.then(
         (response) => {
-          const newUser = JSON.parse(response.data);
+          const newUser = response.data;
           this.setState({user: newUser});
           this.props.callback("userDetail", newUser.first_name + " " + newUser.last_name);
         }
@@ -53,7 +53,7 @@ class UserDetail extends React.Component {
     const promise = axios.get(`/user/${this.props.match.params.userId}`);
     promise.then(
       (response) => {
-        const newUser = JSON.parse(response.data);
+        const newUser = response.data;
         this.setState({user: newUser});
         this.props.callback("userDetail", newUser.first_name + " " + newUser.last_name);
       }
